@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -6,7 +5,9 @@ import ThemeUploader from '@/components/ThemeUploader';
 import TemplateSelector from '@/components/TemplateSelector';
 import EmailTemplatePreview from '@/components/EmailTemplatePreview';
 import { EmailTheme, EmailTemplate } from '@/types/theme';
-import { Palette, Mail, Eye } from 'lucide-react';
+import { Palette, Mail, Eye, Download } from 'lucide-react';
+import { downloadAllTemplatesAsHTML } from '@/utils/htmlGenerator';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [currentTheme, setCurrentTheme] = useState<EmailTheme | null>(null);
@@ -47,19 +48,37 @@ const Index = () => {
 
   const activeTheme = currentTheme || defaultTheme;
 
+  const handleDownloadAllTemplates = () => {
+    if (activeTheme) {
+      downloadAllTemplatesAsHTML(activeTheme);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="w-6 h-6 text-blue-600" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Mail className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Email Template Builder</h1>
+                <p className="text-gray-600">Create beautiful, branded email templates with JSON themes</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Email Template Builder</h1>
-              <p className="text-gray-600">Create beautiful, branded email templates with JSON themes</p>
-            </div>
+            
+            {/* Download Button */}
+            <Button 
+              onClick={handleDownloadAllTemplates}
+              className="flex items-center gap-2"
+              disabled={!activeTheme}
+            >
+              <Download className="w-4 h-4" />
+              Download All Templates
+            </Button>
           </div>
         </div>
       </div>
@@ -97,15 +116,28 @@ const Index = () => {
           <div className="lg:col-span-2">
             <Card className="h-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  Template Preview
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="w-5 h-5" />
+                    Template Preview
+                    {selectedTemplate && (
+                      <span className="text-sm font-normal text-gray-500">
+                        - {selectedTemplate.name}
+                      </span>
+                    )}
+                  </CardTitle>
                   {selectedTemplate && (
-                    <span className="text-sm font-normal text-gray-500">
-                      - {selectedTemplate.name}
-                    </span>
+                    <Button 
+                      onClick={handleDownloadAllTemplates}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download HTML
+                    </Button>
                   )}
-                </CardTitle>
+                </div>
               </CardHeader>
               <CardContent>
                 {selectedTemplate ? (
@@ -121,7 +153,7 @@ const Index = () => {
                       <p>
                         Upload a custom JSON theme to see how it transforms this template. 
                         Each theme automatically updates colors, fonts, spacing, and branding 
-                        across all template types.
+                        across all template types. Use the download button to export all templates as HTML files.
                       </p>
                     </div>
                   </div>
